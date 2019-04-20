@@ -789,11 +789,11 @@ namespace MatterHackers.MatterControl
 				},
 				new SceneSelectionOperation()
 				{
-					OperationType = typeof(CurveObject3D_2),
+					OperationType = typeof(CurveObject3D_3),
 					TitleResolver = () => "Curve".Localize(),
 					Action = (sceneContext) =>
 					{
-						var curve = new CurveObject3D_2();
+						var curve = new CurveObject3D_3();
 						curve.WrapSelectedItemAndSelect(sceneContext.Scene);
 					},
 					Icon = AggContext.StaticData.LoadIcon("curve.png", 16, 16, theme.InvertIcons),

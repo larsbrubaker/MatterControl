@@ -33,12 +33,14 @@ using MatterHackers.DataConverters3D.UndoCommands;
 using MatterHackers.MatterControl.DesignTools.Operations;
 using MatterHackers.PolygonMesh;
 using MatterHackers.VectorMath;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
 namespace MatterHackers.MatterControl.PartPreviewWindow.View3D
 {
+	[Obsolete("Not used anymore. Replaced with SourceContainerObject3D", false)]
 	public abstract class MeshWrapperObject3D : Object3D
 	{
 		public MeshWrapperObject3D()

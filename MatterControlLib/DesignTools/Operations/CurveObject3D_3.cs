@@ -48,46 +48,65 @@ using Newtonsoft.Json;
 
 namespace MatterHackers.MatterControl.DesignTools
 {
-	public class CurveObject3D_2 : OperationSourceContainerObject3D, IEditorDraw
+	public class CurveObject3D_3 : SourceContainerObject3D, IEditorDraw, IPropertyGridModifier
 	{
 		// this needs to serialize but not be editable (so public but not a get set)
 		public Vector3 RotationOffset;
 
-		public CurveObject3D_2()
+		public CurveObject3D_3()
 		{
 			Name = "Curve".Localize();
 		}
 
-		//public enum Measure { Diameter, Angle, Turns }
+		public enum Measure
+		{
+			Diameter,
+			Angle,
+			Turns
+		}
 
-		//public Measure Specify { get; set; }
+		[SuppressUpdateOnChange]
+		public Measure Specify { get; set; }
 
 		[DisplayName("Bend Up")]
 		public bool BendCcw { get; set; } = true;
 
-		public double Diameter { get; set; } = double.MinValue;
-		//public double Angle { get; set; } = double.MinValue;
+		public double Diameter { get; set; } = double.MaxValue;
+
+		[JsonIgnore]
+		public double Angle
+		{
+			get
+			{
+				// Angle = Turns * 360
+				return Turns * 360.0;
+			}
+
+			set
+			{
+				// Turns = Angle / 360;
+				Turns = value / 360.0;
+			}
+		}
 
 
-		//[JsonIgnore]
-		//public double Turns
-		//{
-		//	get
-		//	{
-		//		// Turns = XSize / (Tau * (Diameter / 2));
-		//		var aabb = this.SourceContainer.GetAxisAlignedBoundingBox();
+		[JsonIgnore]
+		public double Turns
+		{
+			get
+			{
+				// Turns = XSize / (Tau * (Diameter / 2));
+				var aabb = this.SourceItem.GetAxisAlignedBoundingBox();
+				return aabb.XSize / (MathHelper.Tau * (Diameter / 2));
+			}
 
-		//		return aabb.XSize / (MathHelper.Tau * (Diameter / 2));
-		//	}
-		//	set
-		//	{
-		//		// Diameter = ((XSize / Turns) / Tau) * 2
-
-		//		var aabb = this.SourceContainer.GetAxisAlignedBoundingBox();
-
-		//		Diameter = (aabb.XSize / value) / MathHelper.Tau * 2;
-		//	}
-		//}
+			set
+			{
+				// Diameter = ((XSize / Turns) / Tau) * 2
+				var aabb = this.SourceItem.GetAxisAlignedBoundingBox();
+				Diameter = (aabb.XSize / value) / MathHelper.Tau * 2;
+			}
+		}
 
 		[Range(3, 360, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
 		[Description("Ensures the rotated part has a minimum number of sides per complete rotation")]
@@ -107,7 +126,14 @@ namespace MatterHackers.MatterControl.DesignTools
 				var aabb = this.GetAxisAlignedBoundingBox(currentMatrixInv);
 
 				layer.World.RenderCylinderOutline(this.WorldMatrix(), Vector3.Zero, Diameter, aabb.ZSize, 150, Color.Red, Color.Transparent);
-				layer.World.RenderCylinderOutline(this.WorldMatrix(), Vector3.Zero, Diameter, aabb.ZSize, (int)Math.Max(0, this.MinSidesPerRotation), Color.Transparent, Color.Red);
+
+				layer.World.RenderCylinderOutline(this.WorldMatrix(),
+					Vector3.Zero,
+					Diameter,
+					aabb.ZSize,
+					(int)Math.Min(180, Math.Max(0, this.MinSidesPerRotation)),
+					Color.Transparent,
+					Color.Red);
 			}
 
 			// turn the lighting back on
@@ -118,12 +144,26 @@ namespace MatterHackers.MatterControl.DesignTools
 		{
 			this.DebugDepth("Rebuild");
 
-			bool propertyUpdated = Diameter == double.MinValue;
-			if (StartPercent < 0
-				|| StartPercent > 100)
+			bool valuesChanged = false;
+
+			// ensure we have good values
+			if (StartPercent < 0 || StartPercent > 100)
 			{
 				StartPercent = Math.Min(100, Math.Max(0, StartPercent));
-				propertyUpdated = true;
+				valuesChanged = true;
+			}
+
+			if (Diameter != double.MaxValue
+				&& (Diameter < 1 || Diameter > 100000))
+			{
+				Diameter = Math.Min(100000, Math.Max(1, Diameter));
+				valuesChanged = true;
+			}
+
+			if (MinSidesPerRotation < 0 || MinSidesPerRotation > 360)
+			{
+				MinSidesPerRotation = Math.Min(360, Math.Max(0, MinSidesPerRotation));
+				valuesChanged = true;
 			}
 
 			var originalAabb = this.GetAxisAlignedBoundingBox();
@@ -135,31 +175,28 @@ namespace MatterHackers.MatterControl.DesignTools
 				null,
 				(reporter, cancellationToken) =>
 				{
-					this.Translate(-RotationOffset);
-					SourceContainer.Visible = true;
-					RemoveAllButSource();
+					var startRotationOffset = RotationOffset;
 
 					// remember the current matrix then clear it so the parts will rotate at the original wrapped position
-					var currentMatrix = Matrix;
-					Matrix = Matrix4X4.Identity;
 
-					var aabb = this.GetAxisAlignedBoundingBox();
-					if (Diameter == double.MinValue)
+					var sourceAabb = SourceItem.GetAxisAlignedBoundingBox();
+					if (Diameter == double.MaxValue)
 					{
 						// uninitialized set to a reasonable value
-						Diameter = (int)aabb.XSize;
-						// TODO: ensure that the editor display value is updated
+						Diameter = (int)sourceAabb.XSize;
+						// ensure that the editor display value is updated
+						valuesChanged = true;
 					}
 
 					if (Diameter > 0)
 					{
 						var radius = Diameter / 2;
 						var circumference = MathHelper.Tau * radius;
-						var rotationCenter = new Vector3(aabb.MinXYZ.X + (aabb.MaxXYZ.X - aabb.MinXYZ.X) * (StartPercent / 100), aabb.MaxXYZ.Y + radius, aabb.Center.Z);
-						double numRotations = aabb.XSize / circumference;
+						var rotationCenter = new Vector3(sourceAabb.MinXYZ.X + (sourceAabb.MaxXYZ.X - sourceAabb.MinXYZ.X) * (StartPercent / 100), sourceAabb.MaxXYZ.Y + radius, sourceAabb.Center.Z);
+						double numRotations = sourceAabb.XSize / circumference;
 						double numberOfCuts = numRotations * MinSidesPerRotation;
-						double cutSize = aabb.XSize / numberOfCuts;
-						double cutPosition = aabb.MinXYZ.X + cutSize;
+						double cutSize = sourceAabb.XSize / numberOfCuts;
+						double cutPosition = sourceAabb.MinXYZ.X + cutSize;
 						var cuts = new List<double>();
 						for (int i = 0; i < numberOfCuts; i++)
 						{
@@ -171,21 +208,23 @@ namespace MatterHackers.MatterControl.DesignTools
 						if (!BendCcw)
 						{
 							// fix the stored center so we draw correctly
-							RotationOffset.Y = aabb.MinXYZ.Y - radius;
+							RotationOffset.Y = sourceAabb.MinXYZ.Y - radius;
 						}
 
-						foreach (var sourceItem in SourceContainer.VisibleMeshes())
+						var curvedChildren = new List<IObject3D>();
+
+						foreach (var sourceItem in SourceItem.VisibleMeshes())
 						{
 							var originalMesh = sourceItem.Mesh;
 							var transformedMesh = originalMesh.Copy(CancellationToken.None);
-							var itemMatrix = sourceItem.WorldMatrix(SourceContainer);
+							var itemMatrix = sourceItem.WorldMatrix(SourceItem);
 
 							if (!BendCcw)
 							{
 								// rotate around so it will bend correctly
-								itemMatrix *= Matrix4X4.CreateTranslation(0, -aabb.MaxXYZ.Y, 0);
+								itemMatrix *= Matrix4X4.CreateTranslation(0, -sourceAabb.MaxXYZ.Y, 0);
 								itemMatrix *= Matrix4X4.CreateRotationX(MathHelper.Tau / 2);
-								itemMatrix *= Matrix4X4.CreateTranslation(0, aabb.MaxXYZ.Y - aabb.YSize, 0);
+								itemMatrix *= Matrix4X4.CreateTranslation(0, sourceAabb.MaxXYZ.Y - sourceAabb.YSize, 0);
 							}
 
 							// transform into this space
@@ -203,7 +242,7 @@ namespace MatterHackers.MatterControl.DesignTools
 
 								var rotatePosition = new Vector3Float(Math.Cos(angleToRotate), Math.Sin(angleToRotate), 0) * distanceFromCenter;
 								rotatePosition.Z = position.Z;
-								transformedMesh.Vertices[i] = rotatePosition + new Vector3Float(rotationCenter.X, radius + aabb.MaxXYZ.Y, 0);
+								transformedMesh.Vertices[i] = rotatePosition + new Vector3Float(rotationCenter.X, radius + sourceAabb.MaxXYZ.Y, 0);
 							}
 
 							// transform back into item local space
@@ -212,19 +251,28 @@ namespace MatterHackers.MatterControl.DesignTools
 							transformedMesh.MarkAsChanged();
 							transformedMesh.CalculateNormals();
 
-							var newMesh = new Object3D()
+							var cuvedChild = new Object3D()
 							{
 								Mesh = transformedMesh
 							};
-							newMesh.CopyWorldProperties(sourceItem, this, Object3DPropertyFlags.All);
-							this.Children.Add(newMesh);
+							cuvedChild.CopyWorldProperties(sourceItem, this, Object3DPropertyFlags.All);
+							curvedChildren.Add(cuvedChild);
 						}
 
+						this.Children.Modify((list) =>
+						{
+							list.Clear();
+							list.AddRange(curvedChildren);
+						});
+
 						// set the matrix back
-						Matrix = currentMatrix;
-						this.Translate(new Vector3(RotationOffset));
-						SourceContainer.Visible = false;
+						this.Translate(RotationOffset - startRotationOffset);
 						rebuildLocks.Dispose();
+					}
+
+					if (valuesChanged)
+					{
+						Invalidate(InvalidateType.DisplayValues);
 					}
 
 					Parent?.Invalidate(new InvalidateArgs(this, InvalidateType.Children));
@@ -237,7 +285,7 @@ namespace MatterHackers.MatterControl.DesignTools
 		{
 			for (int j = 0; j < cuts.Count; j++)
 			{
-				mesh.Split(new Plane(Vector3.UnitX, cuts[j]), .1, (clipData) =>
+				mesh.Split(new Plane(Vector3.UnitX, cuts[j]), onPlaneDistance, (clipData) =>
 				{
 					// if two distances are less than 0
 					if ((clipData.Dist[0] < 0 && clipData.Dist[1] < 0)
@@ -257,6 +305,15 @@ namespace MatterHackers.MatterControl.DesignTools
 			}
 
 			return;
+		}
+
+		public void UpdateControls(PublicPropertyChange change)
+		{
+			change.SetRowVisible(nameof(Diameter), () => Specify == Measure.Diameter);
+			change.SetRowVisible(nameof(Angle), () => Specify == Measure.Angle);
+			change.SetRowVisible(nameof(Turns), () => Specify == Measure.Turns);
+
+			Invalidate(new InvalidateArgs(null, InvalidateType.DisplayValues));
 		}
 	}
 }

@@ -54,6 +54,7 @@ namespace MatterHackers.MatterControl.DesignTools
 		public IObject3D Item { get; private set; }
 
 		public object source;
+
 		public PropertyInfo PropertyInfo { get; private set; }
 
 		public EditableProperty(PropertyInfo p, object source)
@@ -83,11 +84,13 @@ namespace MatterHackers.MatterControl.DesignTools
 		/// <param name="value"></param>
 		public void SetValue(object value)
 		{
-			this.PropertyInfo.GetSetMethod().Invoke(source, new Object[] { value });
+			this.PropertyInfo.GetSetMethod().Invoke(source, new object[] { value });
 		}
 
 		public string DisplayName => GetDisplayName(PropertyInfo);
+
 		public string Description => GetDescription(PropertyInfo);
+
 		public Type PropertyType => PropertyInfo.PropertyType;
 	}
 
@@ -297,7 +300,7 @@ namespace MatterHackers.MatterControl.DesignTools
 						oldValue = valueToString(property.Value);
 					}
 
-					//field.Content
+					// field.Content
 					if (undoBuffer != null)
 					{
 						undoBuffer.AddAndDo(new UndoRedoActions(() =>
@@ -309,7 +312,12 @@ namespace MatterHackers.MatterControl.DesignTools
 						() =>
 						{
 							property.SetValue(valueFromString(newValue));
-							object3D?.Invalidate(new InvalidateArgs(context.item, InvalidateType.Properties));
+							var suppressUpdate = property.PropertyInfo.GetCustomAttributes(true).OfType<SuppressUpdateOnChangeAttribute>().FirstOrDefault();
+							if (suppressUpdate == null)
+							{
+								object3D?.Invalidate(new InvalidateArgs(context.item, InvalidateType.Properties));
+							}
+
 							propertyGridModifier?.UpdateControls(new PublicPropertyChange(context, property.PropertyInfo.Name));
 						}));
 					}
@@ -619,16 +627,23 @@ namespace MatterHackers.MatterControl.DesignTools
 				field.ValueChanged += (s, e) =>
 				{
 					property.SetValue(Enum.Parse(property.PropertyType, field.Value));
-					object3D?.Invalidate(new InvalidateArgs(context.item, InvalidateType.Properties));
+
+					// check if the enum field is marked to suppress the update (has no direct effect on the object)
+					var suppressUpdate = property.PropertyInfo.GetCustomAttributes(true).OfType<SuppressUpdateOnChangeAttribute>().FirstOrDefault();
+					if (suppressUpdate == null)
+					{
+						object3D?.Invalidate(new InvalidateArgs(context.item, InvalidateType.Properties));
+					}
+
 					propertyGridModifier?.UpdateControls(new PublicPropertyChange(context, property.PropertyInfo.Name));
 				};
 
 				rowContainer = CreateSettingsRow(property, field, theme);
 			}
-			// Use known IObject3D editors
 			else if (propertyValue is IObject3D item
 				&& ApplicationController.Instance.Extensions.GetEditorsForType(property.PropertyType)?.FirstOrDefault() is IObject3DEditor iObject3DEditor)
 			{
+				// Use known IObject3D editors
 				rowContainer = iObject3DEditor.Create(item, undoBuffer, theme);
 			}
 

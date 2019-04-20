@@ -32,6 +32,7 @@ either expressed or implied, of the FreeBSD Project.
 /************************ USE NEWER VERSION **************************/
 /*********************************************************************/
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MatterHackers.DataConverters3D;
@@ -42,6 +43,7 @@ using MatterHackers.VectorMath;
 
 namespace MatterHackers.MatterControl.DesignTools
 {
+	[Obsolete("Not used anymore. Replaced with MirrorObject3D_2", false)]
 	public class MirrorObject3D : MeshWrapperObject3D
 	{
 		public enum MirrorAxis { X_Axis, Y_Axis, Z_Axis };

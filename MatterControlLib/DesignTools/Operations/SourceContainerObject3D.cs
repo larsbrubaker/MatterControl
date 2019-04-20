@@ -38,63 +38,68 @@ using Newtonsoft.Json;
 
 namespace MatterHackers.MatterControl.DesignTools.Operations
 {
-	public class OperationSourceContainerObject3D : Object3D
+	public class SourceContainerObject3D : Object3D
 	{
 		public override bool CanFlatten => true;
 
-		[JsonIgnore]
-		public IObject3D SourceContainer
+		private Object3D _sourceItem;
+		public Object3D SourceItem
 		{
-			get
+			get => _sourceItem;
+
+			set
 			{
-				IObject3D sourceContainer = this.Children.FirstOrDefault(c => c is OperationSourceObject3D);
-				if (sourceContainer == null)
+				// remove any existing listener
+				if (_sourceItem != null)
 				{
-					using (this.RebuildLock())
-					{
-						sourceContainer = new OperationSourceObject3D();
-
-						// Move all the children to sourceContainer
-						this.Children.Modify(thisChildren =>
-						{
-							sourceContainer.Children.Modify(sourceChildren =>
-							{
-								foreach (var child in thisChildren)
-								{
-									sourceChildren.Add(child);
-								}
-							});
-
-							// and then add the source container to this
-							thisChildren.Clear();
-							thisChildren.Add(sourceContainer);
-						});
-					}
+					_sourceItem.Invalidated -= SourceItem_Invalidated;
 				}
 
-				return sourceContainer;
+				_sourceItem = value;
+
+				// and listen for changes
+				_sourceItem.Invalidated += SourceItem_Invalidated;
 			}
+		}
+
+		private void SourceItem_Invalidated(object sender, InvalidateArgs e)
+		{
+			this.Invalidate(e);
+		}
+
+		public SourceContainerObject3D()
+		{
+			SourceItem = new Object3D();
 		}
 
 		public override void Flatten(UndoBuffer undoBuffer)
 		{
 			using (RebuildLock())
 			{
-				List<IObject3D> newChildren = new List<IObject3D>();
+				var newChildren = new List<IObject3D>();
 				// push our matrix into a copy of our children
 				foreach (var child in this.Children)
 				{
-					if (!(child is OperationSourceObject3D))
+					var newChild = child.Clone();
+					newChildren.Add(newChild);
+					newChild.Matrix *= this.Matrix;
+					var flags = Object3DPropertyFlags.Visible;
+					if (this.Color.alpha != 0)
 					{
-						var newChild = child.Clone();
-						newChildren.Add(newChild);
-						newChild.Matrix *= this.Matrix;
-						var flags = Object3DPropertyFlags.Visible;
-						if (this.Color.alpha != 0) flags |= Object3DPropertyFlags.Color;
-						if (this.OutputType != PrintOutputTypes.Default) flags |= Object3DPropertyFlags.OutputType;
-						if (this.MaterialIndex != -1) flags |= Object3DPropertyFlags.MaterialIndex;
-						newChild.CopyProperties(this, flags);
+						flags |= Object3DPropertyFlags.Color;
 					}
+
+					if (this.OutputType != PrintOutputTypes.Default)
+					{
+						flags |= Object3DPropertyFlags.OutputType;
+					}
+
+					if (this.MaterialIndex != -1)
+					{
+						flags |= Object3DPropertyFlags.MaterialIndex;
+					}
+
+					newChild.CopyProperties(this, flags);
 				}
 
 				if (newChildren.Count > 1)
@@ -158,49 +163,6 @@ namespace MatterHackers.MatterControl.DesignTools.Operations
 			}
 		}
 
-		public override void Remove(UndoBuffer undoBuffer)
-		{
-			using (RebuildLock())
-			{
-				List<IObject3D> newChildren = new List<IObject3D>();
-				// push our matrix into a copy of our children
-				foreach (var child in this.SourceContainer.Children)
-				{
-					var newChild = child.Clone();
-					newChildren.Add(newChild);
-					newChild.Matrix *= this.Matrix;
-					var flags = Object3DPropertyFlags.Visible;
-					if (this.Color.alpha != 0) flags |= Object3DPropertyFlags.Color;
-					if (this.OutputType != PrintOutputTypes.Default) flags |= Object3DPropertyFlags.OutputType;
-					if (this.MaterialIndex != -1) flags |= Object3DPropertyFlags.MaterialIndex;
-					newChild.CopyProperties(this, flags);
-				}
-
-				// and replace us with the children
-				var replaceCommand = new ReplaceCommand(new[] { this }, newChildren, false);
-				if (undoBuffer != null)
-				{
-					undoBuffer.AddAndDo(replaceCommand);
-				}
-				else
-				{
-					replaceCommand.Do();
-				}
-			}
-
-			Invalidate(InvalidateType.Children);
-		}
-
-		public void RemoveAllButSource()
-		{
-			var sourceContainer = SourceContainer;
-			this.Children.Modify(list =>
-			{
-				list.Clear();
-				list.Add(sourceContainer);
-			});
-		}
-
 		public async void WrapSelectedItemAndSelect(InteractiveScene scene)
 		{
 			using (RebuildLock())
@@ -219,11 +181,13 @@ namespace MatterHackers.MatterControl.DesignTools.Operations
 						Children.Modify((list) =>
 						{
 							list.Clear();
+							list.AddRange(clonedItemsToAdd);
+						});
 
-							foreach (var child in clonedItemsToAdd)
-							{
-								list.Add(child);
-							}
+						SourceItem.Children.Modify((list) =>
+						{
+							list.Clear();
+							list.AddRange(clonedItemsToAdd);
 						});
 					}
 
@@ -241,13 +205,47 @@ namespace MatterHackers.MatterControl.DesignTools.Operations
 
 			this.Invalidate(InvalidateType.Children);
 		}
-	}
 
-	public class OperationSourceObject3D : Object3D
-	{
-		public OperationSourceObject3D()
+
+		public override void Remove(UndoBuffer undoBuffer)
 		{
-			Name = "Source".Localize();
+			using (RebuildLock())
+			{
+				// push our matrix into a copy of our children
+
+				var newChild = SourceItem.Clone();
+				newChild.Matrix *= this.Matrix;
+				var flags = Object3DPropertyFlags.Visible;
+				if (this.Color.alpha != 0)
+				{
+					flags |= Object3DPropertyFlags.Color;
+				}
+
+				if (this.OutputType != PrintOutputTypes.Default)
+				{
+					flags |= Object3DPropertyFlags.OutputType;
+				}
+
+				if (this.MaterialIndex != -1)
+				{
+					flags |= Object3DPropertyFlags.MaterialIndex;
+				}
+
+				newChild.CopyProperties(this, flags);
+
+				// and replace us with the children
+				var replaceCommand = new ReplaceCommand(new[] { this }, new[] { newChild }, false);
+				if (undoBuffer != null)
+				{
+					undoBuffer.AddAndDo(replaceCommand);
+				}
+				else
+				{
+					replaceCommand.Do();
+				}
+			}
+
+			Invalidate(InvalidateType.Children);
 		}
 	}
 }

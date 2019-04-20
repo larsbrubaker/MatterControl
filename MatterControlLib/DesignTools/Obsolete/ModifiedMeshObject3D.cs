@@ -30,10 +30,12 @@ either expressed or implied, of the FreeBSD Project.
 using MatterHackers.DataConverters3D;
 using MatterHackers.MatterControl.DesignTools.Operations;
 using MatterHackers.VectorMath;
+using System;
 using System.Linq;
 
 namespace MatterHackers.MatterControl.PartPreviewWindow.View3D
 {
+	[Obsolete("Not used anymore. Replaced with SourceContainerObject3D", false)]
 	/// <summary>
 	/// The goal of MeshWrapper is to provide a mutated version of a source item by some operation. To do so we wrap and clone all
 	/// properties of the source item and reset the source matrix to Identity, given that it now exists on the wrapping parent.

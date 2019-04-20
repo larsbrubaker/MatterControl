@@ -53,7 +53,7 @@ namespace MatterHackers.MatterControl.PartPreviewWindow
 		private static TreeNode AddTree(ObjectView item, TreeNode parent, Dictionary<IObject3D, TreeNode> keyValues, ThemeConfig theme)
 		{
 			// Suppress MeshWrapper and OperationSource nodes in tree
-			bool shouldCollapseToParent = item.Source is ModifiedMeshObject3D || item.Source is OperationSourceObject3D;
+			bool shouldCollapseToParent = item.Source is ModifiedMeshObject3D || item.Source is OperationSourceContainerObject3D.OperationSourceObject3D;
 			var contextNode = (shouldCollapseToParent && parent != null) ? parent : AddItem(item, parent, keyValues, theme);
 
 			using (contextNode.LayoutLock())
@@ -150,7 +150,7 @@ namespace MatterHackers.MatterControl.PartPreviewWindow
 				case ArrayLinearObject3D arrayLinear3D:
 					return new ObjectView()
 					{
-						Children = item.Children.OfType<OperationSourceObject3D>().ToList(),
+						Children = item.Children.OfType<OperationSourceContainerObject3D.OperationSourceObject3D>().ToList(),
 						Name = $"{arrayLinear3D.Name} ({arrayLinear3D.Count})",
 						Source = item
 					};
@@ -158,7 +158,7 @@ namespace MatterHackers.MatterControl.PartPreviewWindow
 				case ArrayAdvancedObject3D arrayAdvanced3D:
 					return new ObjectView()
 					{
-						Children = item.Children.OfType<OperationSourceObject3D>().ToList(),
+						Children = item.Children.OfType<OperationSourceContainerObject3D.OperationSourceObject3D>().ToList(),
 						Name = $"{arrayAdvanced3D.Name} ({arrayAdvanced3D.Count})",
 						Source = item
 					};
@@ -167,7 +167,7 @@ namespace MatterHackers.MatterControl.PartPreviewWindow
 				case ArrayRadialObject3D arrayRadial3D:
 					return new ObjectView()
 					{
-						Children = item.Children.OfType<OperationSourceObject3D>().ToList(),
+						Children = item.Children.OfType<OperationSourceContainerObject3D.OperationSourceObject3D>().ToList(),
 						Name = $"{arrayRadial3D.Name} ({arrayRadial3D.Count})",
 						Source = item
 					};
@@ -175,11 +175,18 @@ namespace MatterHackers.MatterControl.PartPreviewWindow
 				case OperationSourceContainerObject3D operationSourceContainerObject3D:
 					return new ObjectView()
 					{
-						Children = item.Children.OfType<OperationSourceObject3D>().ToList(),
+						Children = item.Children.OfType<OperationSourceContainerObject3D.OperationSourceObject3D>().ToList(),
 						Name = operationSourceContainerObject3D.Name,
 						Source = item
 					};
 
+				case SourceContainerObject3D sourceContainerObject3D:
+					return new ObjectView()
+					{
+						Children = sourceContainerObject3D.SourceItem.Children.ToList(),
+						Name = sourceContainerObject3D.Name,
+						Source = item
+					};
 
 				default:
 					return new ObjectView(item);
