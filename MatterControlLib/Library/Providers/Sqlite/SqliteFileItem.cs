@@ -53,11 +53,24 @@ namespace MatterHackers.MatterControl.Library
 			get => this.PrintItem.Name;
 			set
 			{
-				this.PrintItem.Name = value;
-				this.PrintItem.Commit();
-	
-				this.ReloadContent();
+				if (this.PrintItem.Name != value)
+				{
+					this.PrintItem.Name = value;
+					this.PrintItem.Commit();
+
+					ApplicationController.Instance.MainView.Broadcast("ILibraryItem Name Changed", new LibraryItemNameChangedEvent(this));
+				}
 			}
 		}
+	}
+
+	public class LibraryItemNameChangedEvent : EventArgs
+	{
+		public LibraryItemNameChangedEvent(ILibraryItem item)
+		{
+			this.Item = item;
+		}
+
+		public ILibraryItem Item { get; }
 	}
 }

@@ -97,11 +97,14 @@ namespace MatterHackers.MatterControl.Library
 					string destFile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(sourceFile), value);
 					destFile = System.IO.Path.ChangeExtension(destFile, extension);
 
-					File.Move(sourceFile, destFile);
+					if (sourceFile != destFile)
+					{
+						File.Move(sourceFile, destFile);
 
-					this.Path = destFile;
+						this.Path = destFile;
 
-					this.ReloadContent();
+						ApplicationController.Instance.MainView.Broadcast("ILibraryItem Name Changed", new LibraryItemNameChangedEvent(this));
+					}
 				}
 			}
 		}

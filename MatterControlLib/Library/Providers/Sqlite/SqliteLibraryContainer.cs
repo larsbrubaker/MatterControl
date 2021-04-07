@@ -254,19 +254,30 @@ namespace MatterHackers.MatterControl.Library
 
 			public string Name
 			{
-				get;
+				get
+				{
+					string sql = $"SELECT * FROM PrintItemCollection WHERE ID = {this.CollectionID}";
+
+					var container = Datastore.Instance.dbSQLite.Query<PrintItemCollection>(sql).FirstOrDefault();
+					return container.Name;
+				}
+
 				set
 				{
 					string sql = $"SELECT * FROM PrintItemCollection WHERE ID = {this.CollectionID}";
 
 					var container = Datastore.Instance.dbSQLite.Query<PrintItemCollection>(sql).FirstOrDefault();
-					if (container != null)
-					{
-						container.Name = value;
-						container.Commit();
-					}
 
-					this.ReloadContent();
+					if (value != container.Name)
+					{
+						if (container != null)
+						{
+							container.Name = value;
+							container.Commit();
+						}
+
+						ApplicationController.Instance.MainView.Broadcast("ILibraryItem Name Changed", new LibraryItemNameChangedEvent(this));
+					}
 				}
 			}
 
