@@ -55,6 +55,7 @@ namespace MatterHackers.MatterControl.Library
 
 			Items.Add(new GeneratorItem(
 				() => "Set Temperature".Localize(),
+				null,
 				async () => await SetTemperatureObject3D.Create())
 				{
 					Category = this.Name
@@ -62,18 +63,21 @@ namespace MatterHackers.MatterControl.Library
 
 			Items.Add(new GeneratorItem(
 				() => "PLA Temperature Tower".Localize(),
+				null,
 				async () => await TemperatureTowerObject3D.Create(220))
 			{
 				Category = this.Name
 			});
 			Items.Add(new GeneratorItem(
 				() => "ABS Temperature Tower".Localize(),
+				null,
 				async () => await TemperatureTowerObject3D.Create(250))
 			{
 				Category = this.Name
 			});
 			Items.Add(new GeneratorItem(
 				() => "PETG Temperature Tower".Localize(),
+				null,
 				async () => await TemperatureTowerObject3D.Create(260))
 			{
 				Category = this.Name
@@ -81,6 +85,7 @@ namespace MatterHackers.MatterControl.Library
 #if DEBUG
 			Items.Add(new GeneratorItem(
 				() => "XY Calibration".Localize(),
+				null,
 				async () => await XyCalibrationFaceObject3D.Create())
 			{
 				Category = this.Name
@@ -113,7 +118,14 @@ namespace MatterHackers.MatterControl.Library
 
 			public string ID => agg_basics.GetLongHashCode(AssetPath).ToString();
 
-			public string Name => this.FileName;
+			public string Name
+			{
+				get => this.FileName;
+				set
+				{
+					// do nothing
+				}
+			}
 
 			public bool IsProtected => true;
 

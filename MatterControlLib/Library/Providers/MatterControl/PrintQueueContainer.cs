@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using MatterHackers.Agg.Image;
 using MatterHackers.Agg.UI;
 using MatterHackers.Localizations;
 using MatterHackers.MatterControl.DataStorage;
@@ -142,6 +143,14 @@ namespace MatterHackers.MatterControl.Library
 		}
 
 		public override void Dispose()
+		{
+		}
+
+		public override void Rename(ILibraryItem item, string revisedName)
+		{
+		}
+
+		public override void SetThumbnail(ILibraryItem item, int width, int height, ImageBuffer imageBuffer)
 		{
 		}
 	}

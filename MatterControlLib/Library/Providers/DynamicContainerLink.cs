@@ -38,25 +38,28 @@ namespace MatterHackers.MatterControl.Library
 	{
 		private readonly Func<ILibraryContainer> containerCreator;
 
-		private readonly Func<string> nameResolver;
+		private readonly Func<string> nameGetter;
+		private readonly Action<string> nameSetter;
 
 		private readonly ImageBuffer thumbnail;
 		private readonly ImageBuffer microIcon;
-		private readonly Func<bool> visibilityResolver;
+		private readonly Func<bool> visibilityGetter;
 
-		public DynamicContainerLink(Func<string> nameResolver,
+		public DynamicContainerLink(Func<string> nameGetter,
+			Action<string> nameSetter,
 			ImageBuffer thumbnail,
 			Func<ILibraryContainer> creator = null,
 			Func<bool> visibilityResolver = null)
-			: this(nameResolver, thumbnail, null, creator, visibilityResolver)
+			: this(nameGetter, nameSetter, thumbnail, null, creator, visibilityResolver)
 		{
 		}
 
-		public DynamicContainerLink(Func<string> nameResolver,
+		public DynamicContainerLink(Func<string> nameGetter,
+			Action<string> nameSetter,
 			ImageBuffer thumbnail,
 			ImageBuffer microIcon,
 			Func<ILibraryContainer> creator = null,
-			Func<bool> visibilityResolver = null)
+			Func<bool> visibilityGetter = null)
 		{
 			this.thumbnail = thumbnail?.SetPreMultiply();
 			this.microIcon = microIcon;
@@ -69,9 +72,10 @@ namespace MatterHackers.MatterControl.Library
 				microIcon.SetPreMultiply();
 			}
 
-			this.nameResolver = nameResolver;
+			this.nameGetter = nameGetter;
+			this.nameSetter = nameSetter;
 			this.containerCreator = creator;
-			this.visibilityResolver = visibilityResolver ?? (() => true);
+			this.visibilityGetter = visibilityGetter ?? (() => true);
 		}
 
 		public string Category { get; set; }
@@ -86,9 +90,16 @@ namespace MatterHackers.MatterControl.Library
 
 		public bool IsReadOnly { get; set; } = false;
 
-		public bool IsVisible => this.visibilityResolver();
+		public bool IsVisible => this.visibilityGetter();
 
-		public string Name => nameResolver?.Invoke();
+		public string Name
+		{
+			get => nameGetter?.Invoke();
+			set
+			{
+				nameSetter?.Invoke(value);
+			}
+		}
 
 		public Task<ILibraryContainer> GetContainer(Action<double, string> reportProgress)
 		{

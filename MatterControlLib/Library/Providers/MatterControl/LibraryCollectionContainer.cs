@@ -56,6 +56,7 @@ namespace MatterHackers.MatterControl.Library
 				this.ChildContainers.Add(
 					new DynamicContainerLink(
 						() => "Local Library".Localize(),
+						null,
 						StaticData.Instance.LoadIcon(Path.Combine("Library", "folder.png")),
 						StaticData.Instance.LoadIcon(Path.Combine("Library", "local_library_icon.png")),
 						() => new SqliteLibraryContainer(rootLibraryCollection.Id)));
@@ -64,6 +65,7 @@ namespace MatterHackers.MatterControl.Library
 			this.ChildContainers.Add(
 				new DynamicContainerLink(
 					() => "Calibration Parts".Localize(),
+					null,
 					StaticData.Instance.LoadIcon(Path.Combine("Library", "folder.png")),
 					StaticData.Instance.LoadIcon(Path.Combine("Library", "calibration_library_icon.png")),
 					() => new CalibrationPartsContainer())
@@ -74,6 +76,7 @@ namespace MatterHackers.MatterControl.Library
 			this.ChildContainers.Add(
 				new DynamicContainerLink(
 					() => "Primitives".Localize(),
+					null,
 					StaticData.Instance.LoadIcon(Path.Combine("Library", "folder.png")),
 					StaticData.Instance.LoadIcon(Path.Combine("Library", "primitives_library_icon.png")),
 					() => new PrimitivesContainer())
@@ -92,6 +95,7 @@ namespace MatterHackers.MatterControl.Library
 				this.ChildContainers.Add(
 					new DynamicContainerLink(
 						() => "Print Queue".Localize(),
+						null,
 						StaticData.Instance.LoadIcon(Path.Combine("Library", "folder.png")),
 						StaticData.Instance.LoadIcon(Path.Combine("Library", "queue_icon.png")),
 						() => new PrintQueueContainer()));
@@ -101,6 +105,7 @@ namespace MatterHackers.MatterControl.Library
 			this.ChildContainers.Add(
 				new DynamicContainerLink(
 					() => "Pipe Works".Localize(),
+					null,
 					StaticData.Instance.LoadIcon(Path.Combine("Library", "folder.png")),
 					null,
 					() => new PipeWorksContainer())
@@ -113,6 +118,7 @@ namespace MatterHackers.MatterControl.Library
 			this.ChildContainers.Add(
 				new DynamicContainerLink(
 					() => "Experimental".Localize(),
+					null,
 					StaticData.Instance.LoadIcon(Path.Combine("Library", "folder.png")),
 					null,
 					() => new DynamicContainer()
@@ -121,18 +127,22 @@ namespace MatterHackers.MatterControl.Library
 						{
 							new GeneratorItem(
 								() => "Calibration Tab".Localize(),
+								null,
 								async () => await XyCalibrationTabObject3D.Create())
 							{ DateCreated = new System.DateTime(index++) },
 							new GeneratorItem(
 								() => "Calibration Face".Localize(),
+								null,
 								async () => await XyCalibrationFaceObject3D.Create())
 							{ DateCreated = new System.DateTime(index++) },
 							new GeneratorItem(
 								() => "Text2".Localize(),
+								null,
 								async () => await TextPathObject3D.Create())
 							{ DateCreated = new System.DateTime(index++) },
 							new GeneratorItem(
 								() => "Path".Localize(),
+								null,
 								() =>
 								{
 									var storage = new VertexStorage();

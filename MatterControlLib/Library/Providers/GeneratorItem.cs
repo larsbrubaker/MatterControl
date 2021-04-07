@@ -69,32 +69,37 @@ namespace MatterHackers.MatterControl.Library
 
 	public class GeneratorItem : ILibraryObject3D
 	{
-		private Func<string> nameResolver;
+		private Func<string> nameGetter;
+		private Action<string> nameSetter;
 
 		/// <summary>
 		/// The delegate responsible for producing the item
 		/// </summary>
 		private Func<Task<IObject3D>> collector;
 
-		public GeneratorItem(Func<string> nameResolver)
+		public GeneratorItem(Func<string> nameGetter, Action<string> nameSetter)
 		{
-			this.nameResolver = nameResolver;
+			this.nameGetter = nameGetter;
+			this.nameSetter = nameSetter;
 			this.IsProtected = true;
 		}
 
-		public GeneratorItem(Func<string> nameResolver, Func<Task<IObject3D>> collector, string category = null)
+		public GeneratorItem(Func<string> nameGetter, Action<string> nameSetter, Func<Task<IObject3D>> collector, string category = null)
+			: this(nameGetter, nameSetter)
 		{
-			this.nameResolver = nameResolver;
 			this.collector = collector;
 			this.Category = category;
-			//this.Color = ColorRange.NextColor();
 		}
 
 		public string ID => $"MatterHackers/ItemGenerator/{Name}".GetLongHashCode().ToString();
 
 		public string Category { get; set; }
 
-		public string Name => nameResolver?.Invoke();
+		public string Name
+		{
+			get => nameGetter?.Invoke();
+			set => nameSetter?.Invoke(value);
+		}
 
 		public string ContentType { get; set; } = "mcx";
 

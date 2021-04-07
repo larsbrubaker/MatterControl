@@ -36,7 +36,7 @@ namespace MatterHackers.MatterControl.Library
 	{
 		string ID { get; }
 
-		string Name { get; }
+		string Name { get; set; }
 
 		bool IsProtected { get; }
 

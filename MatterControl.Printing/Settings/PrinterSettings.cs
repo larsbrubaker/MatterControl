@@ -1362,9 +1362,9 @@ namespace MatterHackers.MatterControl.SlicerConfiguration
 			string value = this.GetValue(settingsKey);
 
 			if (SettingsData.TryGetValue(settingsKey, out SliceSettingData settingsData)
-				&& settingsData.Converter is ValueConverter resolver)
+				&& settingsData.Converter is ValueConverter valueConverter)
 			{
-				return resolver.Convert(value, this);
+				return valueConverter.Convert(value, this);
 			}
 
 			return value;

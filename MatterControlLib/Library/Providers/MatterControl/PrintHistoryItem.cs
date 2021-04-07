@@ -52,7 +52,11 @@ namespace MatterHackers.MatterControl.Library
 
 		public string ID { get; } = Guid.NewGuid().ToString();
 
-		public string Name => this.PrintTask.PrintName;
+		public string Name
+		{
+			get => this.PrintTask.PrintName;
+			set => this.PrintTask.PrintName = value;
+		}
 
 		public bool IsProtected => true;
 

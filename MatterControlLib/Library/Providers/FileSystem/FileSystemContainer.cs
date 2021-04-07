@@ -34,6 +34,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MatterHackers.Agg;
+using MatterHackers.Agg.Image;
 using MatterHackers.Agg.Platform;
 using MatterHackers.Agg.UI;
 
@@ -294,6 +295,10 @@ namespace MatterHackers.MatterControl.Library
 					this.ReloadContent();
 				}
 			}
+		}
+
+		public override void SetThumbnail(ILibraryItem item, int width, int height, ImageBuffer imageBuffer)
+		{
 		}
 
 		private void DirectoryContentsChanged(object sender, EventArgs e)

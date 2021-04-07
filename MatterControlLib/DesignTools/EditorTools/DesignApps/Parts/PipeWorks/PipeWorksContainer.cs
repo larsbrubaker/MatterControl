@@ -49,9 +49,11 @@ namespace MatterHackers.MatterControl.Library
 			{
 				new GeneratorItem(
 					() => "Tee".Localize(),
+					null,
 					async () => await TeeObject3D.Create()),
 				new GeneratorItem(
 					() => "Elbow".Localize(),
+					null,
 					async () => await ElbowObject3D.Create()),
 			};
 

@@ -27,6 +27,7 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 */
 
+using MatterHackers.Agg.Image;
 using MatterHackers.Agg.UI;
 using MatterHackers.Localizations;
 using MatterHackers.MatterControl.DataStorage;
@@ -207,6 +208,10 @@ namespace MatterHackers.MatterControl.Library
 			}
 
 			this.ReloadContent();
+		}
+
+		public override void SetThumbnail(ILibraryItem item, int width, int height, ImageBuffer imageBuffer)
+		{
 		}
 
 		protected List<PrintItemCollection> GetChildCollections()

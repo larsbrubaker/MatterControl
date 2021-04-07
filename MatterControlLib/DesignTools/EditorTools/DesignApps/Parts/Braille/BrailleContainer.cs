@@ -49,9 +49,11 @@ namespace MatterHackers.MatterControl.Library
 			{
 				new GeneratorItem(
 					() => "Braille".Localize(),
+					null,
 					async () => await BrailleObject3D.Create()),
 				new GeneratorItem(
 					() => "Braille Card".Localize(),
+					null,
 					async () => await BrailleCardObject3D.Create()),
 			};
 
