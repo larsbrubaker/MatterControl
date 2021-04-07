@@ -146,10 +146,6 @@ namespace MatterHackers.MatterControl.Library
 		{
 		}
 
-		public override void Rename(ILibraryItem item, string revisedName)
-		{
-		}
-
 		public override void SetThumbnail(ILibraryItem item, int width, int height, ImageBuffer imageBuffer)
 		{
 		}

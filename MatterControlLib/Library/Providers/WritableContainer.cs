@@ -49,8 +49,6 @@ namespace MatterHackers.MatterControl.Library
 
 		public abstract void Remove(IEnumerable<ILibraryItem> items);
 
-		public abstract void Rename(ILibraryItem item, string revisedName);
-
 		public virtual void Save(ILibraryItem item, IObject3D content)
 		{
 			if (item is FileSystemFileItem fileItem)

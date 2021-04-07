@@ -119,10 +119,7 @@ namespace MatterHackers.MatterControl.Library
 					"Rename".Localize(),
 					(newName) =>
 					{
-						if (libraryContainer is ILibraryWritableContainer writableContainer)
-						{
-							writableContainer.Rename(libraryItem, newName);
-						}
+						libraryItem.Name = newName;
 					}));
 		}
 	}

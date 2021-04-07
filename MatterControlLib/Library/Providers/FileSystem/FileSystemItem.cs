@@ -38,8 +38,6 @@ namespace MatterHackers.MatterControl.Library
 	/// </summary>
 	public class FileSystemItem : ILibraryItem
 	{
-		private string fileName;
-
 		public FileSystemItem(string path)
 		{
 			this.Path = path;
@@ -87,17 +85,24 @@ namespace MatterHackers.MatterControl.Library
 		{
 			get
 			{
-				if (fileName == null)
-				{
-					fileName = System.IO.Path.GetFileName(this.Path);
-				}
-
-				return fileName;
+				return System.IO.Path.GetFileName(this.Path);
 			}
 
 			set
 			{
-				fileName = value;
+				string sourceFile = this.Path;
+				if (File.Exists(sourceFile))
+				{
+					string extension = System.IO.Path.GetExtension(sourceFile);
+					string destFile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(sourceFile), value);
+					destFile = System.IO.Path.ChangeExtension(destFile, extension);
+
+					File.Move(sourceFile, destFile);
+
+					this.Path = destFile;
+
+					this.ReloadContent();
+				}
 			}
 		}
 

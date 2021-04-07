@@ -48,6 +48,16 @@ namespace MatterHackers.MatterControl.Library
 			this.PrintItem = printItem;
 		}
 
-		public override string Name { get => this.PrintItem.Name; set => this.PrintItem.Name = value; }
+		public override string Name
+		{
+			get => this.PrintItem.Name;
+			set
+			{
+				this.PrintItem.Name = value;
+				this.PrintItem.Commit();
+	
+				this.ReloadContent();
+			}
+		}
 	}
 }

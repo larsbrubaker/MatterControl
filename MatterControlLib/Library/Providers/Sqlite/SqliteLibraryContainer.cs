@@ -188,28 +188,6 @@ namespace MatterHackers.MatterControl.Library
 			this.ReloadContent();
 		}
 
-		public override void Rename(ILibraryItem selectedItem, string revisedName)
-		{
-			if (selectedItem is SqliteFileItem sqliteItem)
-			{
-				sqliteItem.PrintItem.Name = revisedName;
-				sqliteItem.PrintItem.Commit();
-			}
-			else if (selectedItem is SqliteLibraryContainerLink containerLink)
-			{
-				string sql = $"SELECT * FROM PrintItemCollection WHERE ID = {containerLink.CollectionID}";
-
-				var container = Datastore.Instance.dbSQLite.Query<PrintItemCollection>(sql).FirstOrDefault();
-				if (container != null)
-				{
-					container.Name = revisedName;
-					container.Commit();
-				}
-			}
-
-			this.ReloadContent();
-		}
-
 		public override void SetThumbnail(ILibraryItem item, int width, int height, ImageBuffer imageBuffer)
 		{
 		}
@@ -274,7 +252,23 @@ namespace MatterHackers.MatterControl.Library
 
 			public bool IsVisible { get; set; } = true;
 
-			public string Name { get; set; }
+			public string Name
+			{
+				get;
+				set
+				{
+					string sql = $"SELECT * FROM PrintItemCollection WHERE ID = {this.CollectionID}";
+
+					var container = Datastore.Instance.dbSQLite.Query<PrintItemCollection>(sql).FirstOrDefault();
+					if (container != null)
+					{
+						container.Name = value;
+						container.Commit();
+					}
+
+					this.ReloadContent();
+				}
+			}
 
 			public Task<ILibraryContainer> GetContainer(Action<double, string> reportProgress)
 			{
