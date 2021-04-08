@@ -69,23 +69,19 @@ namespace MatterHackers.MatterControl.Library
 
 	public class GeneratorItem : ILibraryObject3D
 	{
-		private Func<string> nameGetter;
-		private Action<string> nameSetter;
-
 		/// <summary>
 		/// The delegate responsible for producing the item
 		/// </summary>
 		private Func<Task<IObject3D>> collector;
 
-		public GeneratorItem(Func<string> nameGetter, Action<string> nameSetter)
+		public GeneratorItem(string name)
 		{
-			this.nameGetter = nameGetter;
-			this.nameSetter = nameSetter;
+			this.Name = name;
 			this.IsProtected = true;
 		}
 
-		public GeneratorItem(Func<string> nameGetter, Action<string> nameSetter, Func<Task<IObject3D>> collector, string category = null)
-			: this(nameGetter, nameSetter)
+		public GeneratorItem(string name, Func<Task<IObject3D>> collector, string category = null)
+			: this(name)
 		{
 			this.collector = collector;
 			this.Category = category;
@@ -95,11 +91,7 @@ namespace MatterHackers.MatterControl.Library
 
 		public string Category { get; set; }
 
-		public string Name
-		{
-			get => nameGetter?.Invoke();
-			set => nameSetter?.Invoke(value);
-		}
+		public string Name { get; set; }
 
 		public string ContentType { get; set; } = "mcx";
 

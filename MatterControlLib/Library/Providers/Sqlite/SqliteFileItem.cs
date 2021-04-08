@@ -27,7 +27,6 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 */
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -58,19 +57,9 @@ namespace MatterHackers.MatterControl.Library
 					this.PrintItem.Name = value;
 					this.PrintItem.Commit();
 
-					ApplicationController.Instance.MainView.Broadcast("ILibraryItem Name Changed", new LibraryItemNameChangedEvent(this));
+					ApplicationController.Instance.MainView.Broadcast("ILibraryItem Name Changed", new LibraryItemNameChangedEvent(this.ID));
 				}
 			}
 		}
-	}
-
-	public class LibraryItemNameChangedEvent : EventArgs
-	{
-		public LibraryItemNameChangedEvent(ILibraryItem item)
-		{
-			this.Item = item;
-		}
-
-		public ILibraryItem Item { get; }
 	}
 }

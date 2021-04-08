@@ -38,24 +38,19 @@ namespace MatterHackers.MatterControl.Library
 	{
 		private readonly Func<ILibraryContainer> containerCreator;
 
-		private readonly Func<string> nameGetter;
-		private readonly Action<string> nameSetter;
-
 		private readonly ImageBuffer thumbnail;
 		private readonly ImageBuffer microIcon;
 		private readonly Func<bool> visibilityGetter;
 
-		public DynamicContainerLink(Func<string> nameGetter,
-			Action<string> nameSetter,
+		public DynamicContainerLink(string name,
 			ImageBuffer thumbnail,
 			Func<ILibraryContainer> creator = null,
 			Func<bool> visibilityResolver = null)
-			: this(nameGetter, nameSetter, thumbnail, null, creator, visibilityResolver)
+			: this(name, thumbnail, null, creator, visibilityResolver)
 		{
 		}
 
-		public DynamicContainerLink(Func<string> nameGetter,
-			Action<string> nameSetter,
+		public DynamicContainerLink(string name,
 			ImageBuffer thumbnail,
 			ImageBuffer microIcon,
 			Func<ILibraryContainer> creator = null,
@@ -72,8 +67,7 @@ namespace MatterHackers.MatterControl.Library
 				microIcon.SetPreMultiply();
 			}
 
-			this.nameGetter = nameGetter;
-			this.nameSetter = nameSetter;
+			this.Name = name;
 			this.containerCreator = creator;
 			this.visibilityGetter = visibilityGetter ?? (() => true);
 		}
@@ -92,14 +86,7 @@ namespace MatterHackers.MatterControl.Library
 
 		public bool IsVisible => this.visibilityGetter();
 
-		public string Name
-		{
-			get => nameGetter?.Invoke();
-			set
-			{
-				nameSetter?.Invoke(value);
-			}
-		}
+		public string Name { get; set; }
 
 		public Task<ILibraryContainer> GetContainer(Action<double, string> reportProgress)
 		{

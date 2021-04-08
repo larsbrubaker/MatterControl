@@ -27,41 +27,17 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 */
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using MatterHackers.DataConverters3D;
-using MatterHackers.Localizations;
-using MatterHackers.MatterControl.DesignTools;
-using MatterHackers.MatterControl.Plugins.BrailleBuilder;
+using System;
 
 namespace MatterHackers.MatterControl.Library
 {
-	public class BrailleContainer : LibraryContainer
+	public class LibraryItemNameChangedEvent : EventArgs
 	{
-		public BrailleContainer()
+		public LibraryItemNameChangedEvent(string id)
 		{
-			Name = "Braille".Localize();
+			this.ID = id;
 		}
 
-		public override void Load()
-		{
-			var libraryItems = new List<GeneratorItem>()
-			{
-				new GeneratorItem(
-					"Braille".Localize(),
-					async () => await BrailleObject3D.Create()),
-				new GeneratorItem(
-					"Braille Card".Localize(),
-					async () => await BrailleCardObject3D.Create()),
-			};
-
-			string title = "Primitive Shapes".Localize();
-
-			foreach (var item in libraryItems)
-			{
-				item.Category = title;
-				Items.Add(item);
-			}
-		}
+		public string ID { get; }
 	}
 }

@@ -54,38 +54,33 @@ namespace MatterHackers.MatterControl.Library
 			Items = oemParts.Select(s => new StaticDataItem(s)).ToList<ILibraryItem>();
 
 			Items.Add(new GeneratorItem(
-				() => "Set Temperature".Localize(),
-				null,
+				"Set Temperature".Localize(),
 				async () => await SetTemperatureObject3D.Create())
 				{
 					Category = this.Name
 				});
 
 			Items.Add(new GeneratorItem(
-				() => "PLA Temperature Tower".Localize(),
-				null,
+				"PLA Temperature Tower".Localize(),
 				async () => await TemperatureTowerObject3D.Create(220))
 			{
 				Category = this.Name
 			});
 			Items.Add(new GeneratorItem(
-				() => "ABS Temperature Tower".Localize(),
-				null,
+				"ABS Temperature Tower".Localize(),
 				async () => await TemperatureTowerObject3D.Create(250))
 			{
 				Category = this.Name
 			});
 			Items.Add(new GeneratorItem(
-				() => "PETG Temperature Tower".Localize(),
-				null,
+				"PETG Temperature Tower".Localize(),
 				async () => await TemperatureTowerObject3D.Create(260))
 			{
 				Category = this.Name
 			});
 #if DEBUG
 			Items.Add(new GeneratorItem(
-				() => "XY Calibration".Localize(),
-				null,
+				"XY Calibration".Localize(),
 				async () => await XyCalibrationFaceObject3D.Create())
 			{
 				Category = this.Name

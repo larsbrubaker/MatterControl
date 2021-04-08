@@ -103,7 +103,7 @@ namespace MatterHackers.MatterControl.Library
 
 						this.Path = destFile;
 
-						ApplicationController.Instance.MainView.Broadcast("ILibraryItem Name Changed", new LibraryItemNameChangedEvent(this));
+						ApplicationController.Instance.MainView.Broadcast("ILibraryItem Name Changed", new LibraryItemNameChangedEvent(this.ID));
 					}
 				}
 			}

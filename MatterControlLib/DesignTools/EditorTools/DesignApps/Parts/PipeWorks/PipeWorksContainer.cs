@@ -48,12 +48,10 @@ namespace MatterHackers.MatterControl.Library
 			var libraryItems = new List<GeneratorItem>()
 			{
 				new GeneratorItem(
-					() => "Tee".Localize(),
-					null,
+					"Tee".Localize(),
 					async () => await TeeObject3D.Create()),
 				new GeneratorItem(
-					() => "Elbow".Localize(),
-					null,
+					"Elbow".Localize(),
 					async () => await ElbowObject3D.Create()),
 			};
 

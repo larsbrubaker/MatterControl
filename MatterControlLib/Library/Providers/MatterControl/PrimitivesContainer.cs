@@ -60,75 +60,61 @@ namespace MatterHackers.MatterControl.Library
 			var libraryItems = new List<GeneratorItem>()
 			{
 				new GeneratorItem(
-					() => "Cube".Localize(),
-					null,
+					"Cube".Localize(),
 					async () => await CubeObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Pyramid".Localize(),
-					null,
+					"Pyramid".Localize(),
 					async () => await PyramidObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Wedge".Localize(),
-					null,
+					"Wedge".Localize(),
 					async () => await WedgeObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Half Wedge".Localize(),
-					null,
+					"Half Wedge".Localize(),
 					async () => await HalfWedgeObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Text".Localize(),
-					null,
+					"Text".Localize(),
 					async () => await TextObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Cylinder".Localize(),
-					null,
+					"Cylinder".Localize(),
 					async () => await CylinderObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Cone".Localize(),
-					null,
+					"Cone".Localize(),
 					async () => await ConeObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Half Cylinder".Localize(),
-					null,
+					"Half Cylinder".Localize(),
 					async () => await HalfCylinderObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Torus".Localize(),
-					null,
+					"Torus".Localize(),
 					async () => await TorusObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Ring".Localize(),
-					null,
+					"Ring".Localize(),
 					async () => await RingObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Sphere".Localize(),
-					null,
+					"Sphere".Localize(),
 					async () => await SphereObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Half Sphere".Localize(),
-					null,
+					"Half Sphere".Localize(),
 					async () => await HalfSphereObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 #if DEBUG
 				new GeneratorItem(
-					() => "SCAD Script".Localize(),
-					null,
+					"SCAD Script".Localize(),
 					async () => await OpenScadScriptObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 #endif
 				new GeneratorItem(
-					() => "Image Converter".Localize(),
-					null,
+					"Image Converter".Localize(),
 					() =>
 					{
 						// Construct an image
@@ -154,8 +140,7 @@ namespace MatterHackers.MatterControl.Library
 					})
 					{ DateCreated = new System.DateTime(index++) },
 				new GeneratorItem(
-					() => "Measure Tool".Localize(),
-					null,
+					"Measure Tool".Localize(),
 					async () => await MeasureToolObject3D.Create())
 					{ DateCreated = new System.DateTime(index++) },
 			};

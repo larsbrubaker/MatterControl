@@ -276,7 +276,7 @@ namespace MatterHackers.MatterControl.Library
 							container.Commit();
 						}
 
-						ApplicationController.Instance.MainView.Broadcast("ILibraryItem Name Changed", new LibraryItemNameChangedEvent(this));
+						ApplicationController.Instance.MainView.Broadcast("ILibraryItem Name Changed", new LibraryItemNameChangedEvent(this.ID));
 					}
 				}
 			}
