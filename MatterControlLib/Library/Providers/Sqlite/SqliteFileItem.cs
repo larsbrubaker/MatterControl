@@ -27,13 +27,7 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 */
 
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using MatterHackers.Localizations;
 using MatterHackers.MatterControl.DataStorage;
-using MatterHackers.MatterControl.PrintQueue;
 
 namespace MatterHackers.MatterControl.Library
 {
