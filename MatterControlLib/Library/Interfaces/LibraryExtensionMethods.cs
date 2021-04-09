@@ -101,26 +101,22 @@ namespace MatterHackers.MatterControl.Library
 			return contentProvider?.CreateItem(item, reporter);
 		}
 
-		public static void Rename(this ILibraryContainer libraryContainer, ILibraryItem libraryItem)
+		public static void Rename(this ILibraryItem item)
 		{
-			if (libraryItem == null)
+			if (item != null)
 			{
-				return;
+				DialogWindow.Show(
+					new InputBoxPage(
+						"Rename Item".Localize(),
+						"Name".Localize(),
+						item.Name,
+						"Enter New Name Here".Localize(),
+						"Rename".Localize(),
+						(newName) =>
+						{
+							item.Name = newName;
+						}));
 			}
-
-			var contentProvider = ApplicationController.Instance.Library.GetContentProvider(libraryItem) as ISceneContentProvider;
-
-			DialogWindow.Show(
-				new InputBoxPage(
-					"Rename Item".Localize(),
-					"Name".Localize(),
-					libraryItem.Name,
-					"Enter New Name Here".Localize(),
-					"Rename".Localize(),
-					(newName) =>
-					{
-						libraryItem.Name = newName;
-					}));
 		}
 	}
 }

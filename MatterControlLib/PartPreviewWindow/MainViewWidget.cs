@@ -754,7 +754,7 @@ namespace MatterHackers.MatterControl.PartPreviewWindow
 			{
 				if (workspace != null)
 				{
-					workspace.LibraryView.ActiveContainer.Rename(workspace.LibraryView.ActiveContainer.Items.FirstOrDefault());
+					workspace.SceneContext?.EditContext?.SourceItem?.Rename();
 				}
 				else if (printer != null)
 				{

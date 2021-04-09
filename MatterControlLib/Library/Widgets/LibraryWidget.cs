@@ -931,7 +931,7 @@ namespace MatterHackers.MatterControl.PrintLibrary
 							return;
 						}
 
-						libraryContext.ActiveContainer.Rename(selectedItem.Model);
+						selectedItem.Model.Rename();
 						libraryView.SelectedItems.Clear();
 					}
 				},
